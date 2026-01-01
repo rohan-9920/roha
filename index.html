@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roha Surprise</title>
+    <style>
+        /* --- 1. CSS VARIABLES (THEMING) --- */
+        :root {
+            /* Default (Unicorn/Light) */
+            --bg-gradient: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            --card-bg: rgba(255, 255, 255, 0.25);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --text-color: #333;
+            --quote-color: #555;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --btn-bg: rgba(255, 255, 255, 0.7);
+            --btn-hover: #fff;
+            --accent: #23a6d5;
+        }
+
+        [data-theme="dark"] {
+            /* Midnight */
+            --bg-gradient: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1c1c1c);
+            --card-bg: rgba(0, 0, 0, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-color: #e0e0e0;
+            --quote-color: #aaa;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            --btn-bg: rgba(0, 0, 0, 0.5);
+            --btn-hover: #333;
+            --accent: #2c5364;
+        }
+
+        [data-theme="cyberpunk"] {
+            /* Cyberpunk */
+            --bg-gradient: linear-gradient(-45deg, #ff00cc, #333399, #00d4ff, #000000);
+            --card-bg: rgba(20, 0, 30, 0.7);
+            --card-border: rgba(0, 255, 255, 0.5);
+            --text-color: #00d4ff; 
+            --quote-color: #ff00cc; 
+            --shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.2);
+            --btn-bg: rgba(0, 0, 0, 0.8);
+            --btn-hover: #ff00cc;
+            --accent: #ff00cc;
+        }
+
+        [data-theme="coffee"] {
+            /* Coffee/Cozy */
+            --bg-gradient: linear-gradient(-45deg, #6f4e37, #a67b5b, #d2b48c, #f5f5dc);
+            --card-bg: rgba(255, 248, 220, 0.4);
+            --card-border: rgba(101, 67, 33, 0.3);
+            --text-color: #4b3621;
+            --quote-color: #6f4e37;
+            --shadow: 0 8px 32px 0 rgba(75, 54, 33, 0.3);
+            --btn-bg: rgba(255, 255, 255, 0.6);
+            --btn-hover: #d2b48c;
+            --accent: #6f4e37;
+        }
+
+        [data-theme="newyear"] {
+            /* 🎉 GOLD & BLACK LUXURY */
+            --bg-gradient: linear-gradient(-45deg, #bf953f, #fcf6ba, #b38728, #000000, #222222);
+            --card-bg: rgba(0, 0, 0, 0.85);
+            --card-border: #bf953f; 
+            --text-color: #fcf6ba; 
+            --quote-color: #bf953f; 
+            --shadow: 0 8px 32px 0 rgba(255, 215, 0, 0.2);
+            --btn-bg: rgba(0, 0, 0, 1);
+            --btn-hover: #bf953f;
+            --accent: #bf953f;
+        }
+
+        /* --- 2. GLOBAL STYLES --- */
+        * { box-sizing: border-box; transition: all 0.4s ease; }
+        
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            overscroll-behavior: none; 
+            perspective: 1000px; /* 3D Depth */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- 3. VISUAL FX (Snow & Mic) --- */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(105vh); }
+        }
+
+        /* Active Microphone Animation */
+        .icon-btn.listening {
+            background: #ff4757 !important;
+            color: white;
+            box-shadow: 0 0 15px #ff4757;
+            animation: pulseMic 1.5s infinite;
+        }
+
+        @keyframes pulseMic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- 4. GLASSMORPHISM CARD (3D) --- */
+        .gallery-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            touch-action: pan-y;
+            user-select: none;
+            z-index: 10;
+            
+            /* 3D Settings */
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            transition: transform 0.1s ease-out, box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        .gallery-card.pulsing {
+            animation: pulseBeat 0.5s infinite alternate ease-in-out;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        @keyframes pulseBeat {
+            from { transform: scale(1) translateZ(0); }
+            to { transform: scale(1.02) translateZ(0); }
+        }
+
+        /* --- 5. CONTENT STYLING --- */
+        .image-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: rgba(0,0,0,0.1);
+            cursor: grab;
+            transform: translateZ(20px); 
+        }
+
+        .image-container:active { cursor: grabbing; }
+
+        .gallery-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none; 
+        }
+
+        .fade-out { opacity: 0; transform: scale(1.05); }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            transform: translateZ(30px);
+        }
+
+        .info-section h2 {
+            margin: 5px 0 10px 0;
+            color: var(--text-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            transform: translateZ(20px);
+        }
+
+        .quote-box {
+            font-style: italic;
+            color: var(--quote-color);
+            min-height: 50px; 
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.4;
+            transform: translateZ(20px);
+        }
+
+        /* --- 6. CONTROLS --- */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transform: translateZ(30px);
+        }
+
+        button {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            background: var(--btn-bg);
+            color: var(--text-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            outline: none;
+        }
+
+        button:hover {
+            background: var(--btn-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* TOP RIGHT CONTROLS */
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .icon-btn {
+            background: var(--btn-bg);
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover { transform: scale(1.1); }
+        
+        .kb-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--quote-color);
+            opacity: 0.7;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .image-container { height: 220px; }
+            .gallery-card { padding: 1.5rem; }
+            .info-section h2 { font-size: 1.5rem; }
+            .kb-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-controls">
+        <div class="icon-btn" onclick="toggleVoice()" id="voiceBtn" title="Voice Control">🎙️</div>
+        <div class="icon-btn" onclick="toggleMusic()" id="musicBtn" title="Music">🎵</div>
+        <div class="icon-btn" onclick="toggleTheme()" title="Theme">🎨</div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="gallery-card" id="swipeCard">
+        <div class="badge" id="yearBadge">2026 Loading...</div>
+
+        <div class="image-container">
+            <img src="" alt="Gallery Image" class="gallery-img" id="mainImage">
+        </div>
+        
+        <div class="info-section">
+            <h2 id="imageTitle">Loading...</h2>
+            <div class="quote-box">
+                "<span id="imageQuote">...</span>"
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="prevImage()">❮ Prev</button>
+            <button onclick="nextImage()">Next ❯</button>
+        </div>
+        
+        <div class="kb-hint">Keys: K (Music) • T (Theme) • ← → (Nav) • Say "Next"</div>
+    </div>
+
+    <script>
+        // --- DATA SOURCE ---
+        const galleryData = [
+            {
+                url: '1.jpeg',
+                title: 'Understandable',
+                quote: 'Duniya mai chane waalo ki nhi, samjhane waalo ki kami hai, Phulo ko "maali(gardener) samjhta hai aur duniya chati(like) hai..'
+            },
+            {
+                url: '2.jpeg',
+                title: 'Cute',
+                quote: 'Sitaaron se bhari raatein pasand hai, Door se suni uski baatein pasand hai.. \n Taarif ke kaabil hai uski zulfein bhi par, Mujhe jyada uski aankhein pasand hai..'
+            },
+            {
+                url: '3.jpeg',
+                title: 'Eyes',
+                quote: "Teri surat sai hai aalam mein baharo ko sabat, Teri aankhon k siwa duniya mai rakha kya hai..."
+            },
+            {
+                url: '4.jpeg',
+                title: 'Dosti',
+                quote: 'Dosti hai isliye dil darta hai Tumhe khone se, Agar matlab hota toh kya farak padta tere hone na hone se.'
+            },
+            {
+                url: '5.jpeg',
+                title: 'Trust',
+                quote: 'Khwahish bas itni si hai ki tumhe ye kabhi na lage.. Ki tumhe ek gaalat insaan se dosti kri hai...!!'
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let currentIndex = 0;
+        const imgElement = document.getElementById('mainImage');
+        const titleElement = document.getElementById('imageTitle');
+        const quoteElement = document.getElementById('imageQuote');
+        let isAnimating = false;
+
+        // Theme Data
+        const themes = ['default', 'newyear', 'dark', 'cyberpunk', 'coffee'];
+        let currentThemeIndex = 0;
+        const themeBadges = {
+            'default': '2026 Loading...',
+            'newyear': '🎉 HAPPY NEW YEAR',
+            'dark': '🌙 Midnight Mode',
+            'cyberpunk': '👾 Cyber System',
+            'coffee': '☕ Cozy Vibes'
+        };
+
+        // --- INITIALIZE ---
+        window.onload = () => {
+            updateDisplay(false);
+            initSwipe();
+            startSnowfall();
+            init3DTilt();
+            initKeyboard();
+        };
+
+        // --- 1. GALLERY LOGIC (Stuck-Fix Included) ---
+        function updateDisplay(animate = true) {
+            if (isAnimating && animate) return;
+
+            const content = galleryData[currentIndex];
+
+            if (animate) {
+                isAnimating = true;
+                
+                imgElement.classList.add('fade-out');
+                titleElement.style.opacity = 0;
+                quoteElement.style.opacity = 0;
+
+                setTimeout(() => {
+                    imgElement.src = content.url;
+                    titleElement.textContent = content.title;
+                    quoteElement.textContent = content.quote;
+
+                    const unlockAnimation = () => {
+                        imgElement.classList.remove('fade-out');
+                        titleElement.style.opacity = 1;
+                        quoteElement.style.opacity = 1;
+                        isAnimating = false; 
+                    };
+
+                    imgElement.onload = unlockAnimation;
+                    imgElement.onerror = () => { console.log("Load Err"); unlockAnimation(); };
+
+                    setTimeout(() => { if(isAnimating) unlockAnimation(); }, 2000);
+                }, 500); 
+            } else {
+                imgElement.src = content.url;
+                titleElement.textContent = content.title;
+                quoteElement.textContent = content.quote;
+            }
+        }
+        
+        function nextImage() {
+            if (isAnimating) return;
+            currentIndex = (currentIndex + 1) % galleryData.length;
+            updateDisplay(true);
+        }
+
+        function prevImage() {
+            if (isAnimating) return;
+            currentIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
+            updateDisplay(true);
+        }
+
+        // --- 2. VOICE RECOGNITION (AI) ---
+        let recognition;
+        let isListening = false;
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        function toggleVoice() {
+            // Check browser support
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Sorry, Voice Control is only supported in Chrome, Edge, and Safari.");
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                isListening = false;
+                voiceBtn.classList.remove('listening');
+            } else {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    voiceBtn.classList.add('listening');
+                };
+
+                recognition.onerror = (e) => {
+                    console.log("Voice Error", e);
+                    isListening = false;
+                    voiceBtn.classList.remove('listening');
+                };
+
+                recognition.onend = () => {
+                    // Auto-restart if we didn't manually stop it
+                    if (isListening) recognition.start();
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+                    console.log("Heard:", transcript);
+
+                    // --- VOICE COMMANDS ---
+                    if (transcript.includes("next") || transcript.includes("go")) {
+                        nextImage();
+                    } 
+                    else if (transcript.includes("back") || transcript.includes("previous")) {
+                        prevImage();
+                    } 
+                    else if (transcript.includes("music") || transcript.includes("play") || transcript.includes("stop")) {
+                        toggleMusic();
+                    } 
+                    else if (transcript.includes("theme") || transcript.includes("color") || transcript.includes("change")) {
+                        toggleTheme();
+                    }
+                };
+
+                recognition.start();
+            }
+        }
+
+        // --- 3. KEYBOARD & TILT ---
+        function initKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                const key = e.key.toLowerCase(); 
+                if (e.key === 'ArrowRight') nextImage();
+                else if (e.key === 'ArrowLeft') prevImage();
+                else if (key === 'k') toggleMusic();
+                else if (key === 't') toggleTheme();
+            });
+        }
+
+        function init3DTilt() {
+            const card = document.querySelector('.gallery-card');
+            document.addEventListener('mousemove', (e) => {
+                if (window.innerWidth < 768) return;
+                const x = (window.innerWidth / 2 - e.pageX) / 20;
+                const y = (window.innerHeight / 2 - e.pageY) / 20;
+                card.style.transform = `rotateY(${Math.max(-15, Math.min(15, x))}deg) rotateX(${Math.max(-15, Math.min(15, y))}deg)`;
+            });
+            document.addEventListener('mouseleave', () => card.style.transform = `rotateY(0deg) rotateX(0deg)`);
+        }
+
+        // --- 4. MUSIC PLAYER ---
+        let isPlaying = false;
+        const audio = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn'); 
+        const card = document.querySelector('.gallery-card');
+
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                card.classList.remove('pulsing');
+                musicBtn.textContent = "🎵";
+                isPlaying = false;
+            } else {
+                audio.volume = 0.4;
+                audio.play().catch(e => alert("Click the page once to enable audio!"));
+                card.classList.add('pulsing');
+                musicBtn.textContent = "⏸️";
+                isPlaying = true;
+            }
+        }
+
+        // --- 5. THEME CYCLER ---
+        function toggleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const newTheme = themes[currentThemeIndex];
+            
+            if (newTheme === 'default') document.body.removeAttribute('data-theme');
+            else document.body.setAttribute('data-theme', newTheme);
+            
+            document.getElementById('yearBadge').textContent = themeBadges[newTheme];
+        }
+
+        // --- 6. SNOWFALL & TOUCH ---
+        function startSnowfall() {
+            setInterval(() => {
+                const snow = document.createElement('div');
+                snow.classList.add('snowflake');
+                snow.style.left = Math.random() * 100 + 'vw';
+                snow.style.width = Math.random() * 5 + 2 + 'px';
+                snow.style.height = snow.style.width;
+                snow.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                document.body.appendChild(snow);
+                setTimeout(() => snow.remove(), 6000);
+            }, 200);
+        }
+
+        function initSwipe() {
+            const swipeCard = document.getElementById('swipeCard');
+            let touchStartX = 0;
+            swipeCard.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+            swipeCard.addEventListener('touchend', e => {
+                const diff = touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 50) (diff > 0) ? nextImage() : prevImage();
+            }, {passive: true});
+        }
+    </script>
+</body>
+</html>
